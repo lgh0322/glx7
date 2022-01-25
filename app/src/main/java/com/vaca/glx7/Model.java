@@ -1,7 +1,8 @@
 package com.vaca.glx7;
 
-import android.graphics.Shader;
 import android.opengl.GLES20;
+import android.renderscript.Float3;
+import android.renderscript.Matrix4f;
 
 import com.vaca.glx7.glkit.BufferUtils;
 import com.vaca.glx7.glkit.ShaderProgram;
@@ -34,6 +35,13 @@ public class Model {
     private ShortBuffer indexBuffer;
     private int indexBufferId;
 
+    // ModelView Transformation
+    protected Float3 position = new Float3(0f, 0f, 0f);
+    protected float rotationX  = 0.0f;
+    protected float rotationY  = 0.0f;
+    protected float rotationZ  = 0.0f;
+    protected float scale      = 1.0f;
+
     public Model(String name, ShaderProgram shader, float[] vertices, short[] indices) {
         this.name = name;
         this.shader = shader;
@@ -42,6 +50,26 @@ public class Model {
 
         setupVertexBuffer();
         setupIndexBuffer();
+    }
+
+    public void setPosition(Float3 position) {
+        this.position = position;
+    }
+
+    public void setRotationX(float rotationX) {
+        this.rotationX = rotationX;
+    }
+
+    public void setRotationY(float rotationY) {
+        this.rotationY = rotationY;
+    }
+
+    public void setRotationZ(float rotationZ) {
+        this.rotationZ = rotationZ;
+    }
+
+    public void setScale(float scale) {
+        this.scale = scale;
     }
 
     private void setupVertexBuffer() {
@@ -70,10 +98,21 @@ public class Model {
         GLES20.glBufferData(GLES20.GL_ELEMENT_ARRAY_BUFFER, indices.length * SIZE_OF_SHORT, indexBuffer, GLES20.GL_STATIC_DRAW);
     }
 
-    public void draw() {
+    public Matrix4f modelMatrix() {
+        Matrix4f mat = new Matrix4f(); // make a new identitiy 4x4 matrix
+        mat.translate(position.x, position.y, position.z);
+        mat.rotate(rotationX, 1.0f, 0.0f, 0.0f);
+        mat.rotate(rotationY, 0.0f, 1.0f, 0.0f);
+        mat.rotate(rotationZ, 0.0f, 0.0f, 1.0f);
+        mat.scale(scale, scale, scale);
+        return mat;
+    }
+
+    public void draw(long dt) {
 
         shader.begin();
 
+        shader.setUniformMatrix("u_ModelViewMatrix", modelMatrix());
         shader.enableVertexAttribute("a_Position");
         shader.setVertexAttribute("a_Position", COORDS_PER_VERTEX, GLES20.GL_FLOAT, false, vertexStride, 0);
 

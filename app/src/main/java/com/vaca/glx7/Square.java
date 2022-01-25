@@ -1,13 +1,17 @@
 package com.vaca.glx7;
 
 
+import android.renderscript.Float3;
+
 import com.vaca.glx7.glkit.ShaderProgram;
+
 
 /**
  * code from the url at { @link https://developer.android.com/training/graphics/opengl/shapes.html }
  * Created by burt on 2016. 6. 16..
  */
 public class Square extends Model {
+
 
 
 
@@ -26,4 +30,5 @@ public class Square extends Model {
     public Square(ShaderProgram shader) {
         super("square", shader, squareCoords, indices);
     }
+
 }
